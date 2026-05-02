@@ -1,0 +1,10 @@
+out/
+database/
+data/
+lib/
+*.class
+*.log
+*.tmp
+.vscode/
+Thumbs.db
+.DS_Store
