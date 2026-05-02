@@ -1,10 +1,7 @@
 out/
-database/
-data/
-lib/
+sources.txt
 *.class
 *.log
 *.tmp
-.vscode/
 Thumbs.db
 .DS_Store
