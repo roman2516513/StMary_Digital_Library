@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,7 +27,7 @@ public class BorrowPanel extends JPanel {
     private final JTextField memberIdField = new JTextField(8);
     private final JTextField borrowDateField = new JTextField(10);
     private final JTextField dueDateField = new JTextField(10);
-    private final JTextField statusField = new JTextField(10);
+    private final JComboBox<String> statusField = new JComboBox<>(new String[]{"Borrowed", "Returned", "Overdue"});
     private final JTextField searchField = new JTextField(22);
     private final DefaultTableModel model = new DefaultTableModel(
             new Object[]{"Record ID", "Book ID", "Member ID", "Borrow Date", "Due Date", "Status"}, 0) {
@@ -103,7 +104,7 @@ public class BorrowPanel extends JPanel {
         return panel;
     }
 
-    private void addRow(JPanel panel, String label, JTextField field, int row) {
+    private void addRow(JPanel panel, String label, java.awt.Component field, int row) {
         java.awt.GridBagConstraints left = new java.awt.GridBagConstraints();
         left.gridx = 0;
         left.gridy = row;
@@ -136,7 +137,7 @@ public class BorrowPanel extends JPanel {
 
     private void updateRecord() {
         try {
-            service.updateBorrowRecord(recordIdField.getText(), statusField.getText());
+            service.updateBorrowRecord(recordIdField.getText(), statusField.getSelectedItem().toString());
             JOptionPane.showMessageDialog(this, "Borrowing record updated successfully.", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             loadRecords();
@@ -191,7 +192,7 @@ public class BorrowPanel extends JPanel {
         memberIdField.setText(String.valueOf(model.getValueAt(row, 2)));
         borrowDateField.setText(String.valueOf(model.getValueAt(row, 3)));
         dueDateField.setText(String.valueOf(model.getValueAt(row, 4)));
-        statusField.setText(String.valueOf(model.getValueAt(row, 5)));
+        statusField.setSelectedItem(String.valueOf(model.getValueAt(row, 5)));
     }
 
     private void clearFields() {
@@ -200,7 +201,7 @@ public class BorrowPanel extends JPanel {
         memberIdField.setText("");
         borrowDateField.setText("");
         dueDateField.setText("");
-        statusField.setText("");
+        statusField.setSelectedIndex(0);
         searchField.setText("");
         table.clearSelection();
     }

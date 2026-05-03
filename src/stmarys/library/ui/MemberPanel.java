@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,7 +25,7 @@ public class MemberPanel extends JPanel {
     private final JTextField idField = new JTextField(8);
     private final JTextField nameField = new JTextField(20);
     private final JTextField emailField = new JTextField(20);
-    private final JTextField typeField = new JTextField(10);
+    private final JComboBox<String> typeField = new JComboBox<>(new String[]{"Student", "Staff"});
     private final JTextField searchField = new JTextField(22);
     private final DefaultTableModel model = new DefaultTableModel(
             new Object[]{"Member ID", "Name", "Email", "Type"}, 0) {
@@ -95,7 +96,7 @@ public class MemberPanel extends JPanel {
         return panel;
     }
 
-    private void addRow(JPanel panel, String label, JTextField field, int row) {
+    private void addRow(JPanel panel, String label, java.awt.Component field, int row) {
         java.awt.GridBagConstraints left = new java.awt.GridBagConstraints();
         left.gridx = 0;
         left.gridy = row;
@@ -114,7 +115,7 @@ public class MemberPanel extends JPanel {
 
     private void addMember() {
         try {
-            service.addMember(idField.getText(), nameField.getText(), emailField.getText(), typeField.getText());
+            service.addMember(idField.getText(), nameField.getText(), emailField.getText(), typeField.getSelectedItem().toString());
             JOptionPane.showMessageDialog(this, "Member added successfully.", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             clearFields();
@@ -127,7 +128,7 @@ public class MemberPanel extends JPanel {
 
     private void updateMember() {
         try {
-            service.updateMember(idField.getText(), nameField.getText(), emailField.getText(), typeField.getText());
+            service.updateMember(idField.getText(), nameField.getText(), emailField.getText(), typeField.getSelectedItem().toString());
             JOptionPane.showMessageDialog(this, "Member updated successfully.", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             loadMembers();
@@ -186,14 +187,14 @@ public class MemberPanel extends JPanel {
         idField.setText(String.valueOf(model.getValueAt(row, 0)));
         nameField.setText(String.valueOf(model.getValueAt(row, 1)));
         emailField.setText(String.valueOf(model.getValueAt(row, 2)));
-        typeField.setText(String.valueOf(model.getValueAt(row, 3)));
+        typeField.setSelectedItem(String.valueOf(model.getValueAt(row, 3)));
     }
 
     private void clearFields() {
         idField.setText("");
         nameField.setText("");
         emailField.setText("");
-        typeField.setText("");
+        typeField.setSelectedIndex(0);
         searchField.setText("");
         table.clearSelection();
     }

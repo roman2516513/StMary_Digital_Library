@@ -179,6 +179,14 @@ public class LibraryService {
         if (member == null)
             throw new ValidationException("Member not found");
 
+        // Prevent duplicate active borrow for the same book or same book+member
+        if (borrowRecordDAO.hasActiveBorrowForBook(bookId)) {
+            throw new ValidationException("This book is already borrowed and not yet returned.");
+        }
+        if (borrowRecordDAO.hasActiveBorrow(bookId, memberId)) {
+            throw new ValidationException("This member already has an active borrowing record for this book.");
+        }
+
         LocalDate borrowDate = ValidationUtil.date(borrowDateStr, "Borrow Date");
         LocalDate dueDate = ValidationUtil.date(dueDateStr, "Due Date");
 

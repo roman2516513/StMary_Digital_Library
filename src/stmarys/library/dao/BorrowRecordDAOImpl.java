@@ -94,6 +94,37 @@ public class BorrowRecordDAOImpl {
         }
     }
 
+    public boolean hasActiveBorrowForBook(int bookId) throws DaoException {
+        try (Connection connection = databaseManager.getConnection();
+                PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM borrow_records WHERE book_id = ? AND return_status != 'Returned'")) {
+            ps.setInt(1, bookId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DaoException("Error checking active borrow for book: " + ex.getMessage(), ex);
+        }
+        return false;
+    }
+
+    public boolean hasActiveBorrow(int bookId, int memberId) throws DaoException {
+        try (Connection connection = databaseManager.getConnection();
+                PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM borrow_records WHERE book_id = ? AND member_id = ? AND return_status != 'Returned'")) {
+            ps.setInt(1, bookId);
+            ps.setInt(2, memberId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DaoException("Error checking active borrow for member/book: " + ex.getMessage(), ex);
+        }
+        return false;
+    }
+
     private BorrowRecord mapBorrowRecord(ResultSet rs) throws SQLException {
         int recordId = rs.getInt("record_id");
         int bookId = rs.getInt("book_id");

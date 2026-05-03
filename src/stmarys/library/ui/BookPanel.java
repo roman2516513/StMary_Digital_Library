@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,7 +26,7 @@ public class BookPanel extends JPanel {
     private final JTextField titleField = new JTextField(20);
     private final JTextField authorField = new JTextField(20);
     private final JTextField categoryField = new JTextField(15);
-    private final JTextField statusField = new JTextField(10);
+    private final JComboBox<String> statusField = new JComboBox<>(new String[]{"Available", "Borrowed"});
     private final JTextField searchField = new JTextField(22);
     private final DefaultTableModel model = new DefaultTableModel(
             new Object[]{"Book ID", "Title", "Author", "Category", "Status"}, 0) {
@@ -109,7 +110,7 @@ public class BookPanel extends JPanel {
         return panel;
     }
 
-    private void addRow(JPanel panel, String label, JTextField field, int row) {
+    private void addRow(JPanel panel, String label, java.awt.Component field, int row) {
         java.awt.GridBagConstraints left = new java.awt.GridBagConstraints();
         left.gridx = 0;
         left.gridy = row;
@@ -129,7 +130,7 @@ public class BookPanel extends JPanel {
     private void addBook() {
         try {
             service.addBook(idField.getText(), titleField.getText(), authorField.getText(),
-                    categoryField.getText(), statusField.getText());
+                categoryField.getText(), statusField.getSelectedItem().toString());
             JOptionPane.showMessageDialog(this, "Book added successfully.", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             clearFields();
@@ -143,13 +144,13 @@ public class BookPanel extends JPanel {
     private void updateBook() {
         try {
             service.updateBook(idField.getText(), titleField.getText(), authorField.getText(),
-                    categoryField.getText(), statusField.getText());
+                categoryField.getText(), statusField.getSelectedItem().toString());
             JOptionPane.showMessageDialog(this, "Book updated successfully.", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             loadBooks();
 
             // If the status was set to Borrowed from the book panel, offer to create a borrow record
-            if ("Borrowed".equalsIgnoreCase(statusField.getText().trim())) {
+            if ("Borrowed".equalsIgnoreCase(statusField.getSelectedItem().toString().trim())) {
                 int opt = JOptionPane.showConfirmDialog(this, "Create a borrowing record for this book now?", "Create Borrow Record", JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION) {
                     try {
@@ -223,7 +224,7 @@ public class BookPanel extends JPanel {
         titleField.setText(String.valueOf(model.getValueAt(row, 1)));
         authorField.setText(String.valueOf(model.getValueAt(row, 2)));
         categoryField.setText(String.valueOf(model.getValueAt(row, 3)));
-        statusField.setText(String.valueOf(model.getValueAt(row, 4)));
+        statusField.setSelectedItem(String.valueOf(model.getValueAt(row, 4)));
     }
 
     private void clearFields() {
@@ -231,7 +232,7 @@ public class BookPanel extends JPanel {
         titleField.setText("");
         authorField.setText("");
         categoryField.setText("");
-        statusField.setText("");
+        statusField.setSelectedIndex(0);
         searchField.setText("");
         table.clearSelection();
     }
