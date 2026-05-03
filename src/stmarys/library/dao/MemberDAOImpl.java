@@ -10,14 +10,13 @@ import java.util.List;
 import stmarys.library.DatabaseManager;
 import stmarys.library.model.Member;
 
-public class MemberDAOImpl implements MemberDAO {
+public class MemberDAOImpl {
     private final DatabaseManager databaseManager;
 
     public MemberDAOImpl(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
     }
 
-    @Override
     public void save(Member member) throws DaoException {
         try (Connection connection = databaseManager.getConnection();
                 PreparedStatement ps = connection.prepareStatement(
@@ -32,7 +31,6 @@ public class MemberDAOImpl implements MemberDAO {
         }
     }
 
-    @Override
     public Member findById(int id) throws DaoException {
         try (Connection connection = databaseManager.getConnection();
                 PreparedStatement ps = connection.prepareStatement("SELECT * FROM members WHERE member_id = ?")) {
@@ -48,7 +46,6 @@ public class MemberDAOImpl implements MemberDAO {
         return null;
     }
 
-    @Override
     public List<Member> findAll() throws DaoException {
         List<Member> members = new ArrayList<>();
         try (Connection connection = databaseManager.getConnection();

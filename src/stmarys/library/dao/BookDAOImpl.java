@@ -10,14 +10,13 @@ import java.util.List;
 import stmarys.library.DatabaseManager;
 import stmarys.library.model.Book;
 
-public class BookDAOImpl implements BookDAO {
+public class BookDAOImpl {
     private final DatabaseManager databaseManager;
 
     public BookDAOImpl(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
     }
 
-    @Override
     public void save(Book book) throws DaoException {
         try (Connection connection = databaseManager.getConnection();
                 PreparedStatement ps = connection.prepareStatement(
@@ -33,7 +32,6 @@ public class BookDAOImpl implements BookDAO {
         }
     }
 
-    @Override
     public Book findById(int id) throws DaoException {
         try (Connection connection = databaseManager.getConnection();
                 PreparedStatement ps = connection.prepareStatement("SELECT * FROM books WHERE book_id = ?")) {
@@ -49,7 +47,6 @@ public class BookDAOImpl implements BookDAO {
         return null;
     }
 
-    @Override
     public List<Book> findAll() throws DaoException {
         List<Book> books = new ArrayList<>();
         try (Connection connection = databaseManager.getConnection();
