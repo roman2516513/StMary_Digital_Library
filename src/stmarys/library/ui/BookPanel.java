@@ -6,23 +6,28 @@ import java.awt.GridBagLayout;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import stmarys.library.dao.DaoException;
 import stmarys.library.model.Book;
 import stmarys.library.service.LibraryService;
+import stmarys.library.util.ValidationException;
 
 public class BookPanel extends JPanel {
     private final LibraryService service;
-    private final JTextField idField = UiHelper.textField(8);
-    private final JTextField titleField = UiHelper.textField(20);
-    private final JTextField authorField = UiHelper.textField(20);
-    private final JTextField categoryField = UiHelper.textField(15);
-    private final JTextField statusField = UiHelper.textField(10);
-    private final JTextField searchField = UiHelper.textField(22);
-    private final DefaultTableModel model = new DefaultTableModel(new Object[] {"Book ID", "Title", "Author", "Category", "Status"}, 0) {
+    private final JTextField idField = new JTextField(8);
+    private final JTextField titleField = new JTextField(20);
+    private final JTextField authorField = new JTextField(20);
+    private final JTextField categoryField = new JTextField(15);
+    private final JTextField statusField = new JTextField(10);
+    private final JTextField searchField = new JTextField(22);
+    private final DefaultTableModel model = new DefaultTableModel(
+            new Object[]{"Book ID", "Title", "Author", "Category", "Status"}, 0) {
+        @Override
         public boolean isCellEditable(int row, int column) {
             return false;
         }
@@ -42,11 +47,12 @@ public class BookPanel extends JPanel {
     private JPanel makeForm() {
         JPanel wrapper = new JPanel(new BorderLayout());
         JPanel form = new JPanel(new GridBagLayout());
-        UiHelper.addRow(form, "Book ID", idField, 0);
-        UiHelper.addRow(form, "Title", titleField, 1);
-        UiHelper.addRow(form, "Author", authorField, 2);
-        UiHelper.addRow(form, "Category", categoryField, 3);
-        UiHelper.addRow(form, "Status", statusField, 4);
+        addRow(form, "Book ID", idField, 0);
+        addRow(form, "Title", titleField, 1);
+        addRow(form, "Author", authorField, 2);
+        addRow(form, "Category", categoryField, 3);
+        addRow(form, "Status", statusField, 4);
+
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton add = new JButton("Add");
         JButton update = new JButton("Update");
@@ -60,9 +66,11 @@ public class BookPanel extends JPanel {
         buttons.add(update);
         buttons.add(delete);
         buttons.add(clear);
-        wrapper.add(UiHelper.panelWithTitle("Book Details", form), BorderLayout.CENTER);
+
+        wrapper.add(new JLabel("Book Details"), BorderLayout.NORTH);
+        wrapper.add(form, BorderLayout.CENTER);
         wrapper.add(buttons, BorderLayout.SOUTH);
-        return UiHelper.padding(wrapper);
+        return wrapper;
     }
 
     private JPanel makeTableArea() {
@@ -71,48 +79,82 @@ public class BookPanel extends JPanel {
         JButton searchButton = new JButton("Search");
         JButton refreshButton = new JButton("Refresh");
         searchButton.addActionListener(event -> loadBooks());
-        refreshButton.addActionListener(event -> { searchField.setText(""); loadBooks(); });
-        search.add(new JLabel("Title"));
+        refreshButton.addActionListener(event -> {
+            searchField.setText("");
+            loadBooks();
+        });
+        search.add(new JLabel("Search Title:"));
         search.add(searchField);
         search.add(searchButton);
         search.add(refreshButton);
+
         panel.add(search, BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        return UiHelper.padding(panel);
+        return panel;
+    }
+
+    private void addRow(JPanel panel, String label, JTextField field, int row) {
+        java.awt.GridBagConstraints left = new java.awt.GridBagConstraints();
+        left.gridx = 0;
+        left.gridy = row;
+        left.anchor = java.awt.GridBagConstraints.WEST;
+        left.insets = new java.awt.Insets(3, 3, 3, 3);
+        panel.add(new JLabel(label), left);
+
+        java.awt.GridBagConstraints right = new java.awt.GridBagConstraints();
+        right.gridx = 1;
+        right.gridy = row;
+        right.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        right.weightx = 1;
+        right.insets = new java.awt.Insets(3, 3, 3, 3);
+        panel.add(field, right);
     }
 
     private void addBook() {
         try {
-            service.addBook(idField.getText(), titleField.getText(), authorField.getText(), categoryField.getText(), statusField.getText());
-            UiHelper.showInfo(this, "Book added successfully.");
+            service.addBook(idField.getText(), titleField.getText(), authorField.getText(),
+                    categoryField.getText(), statusField.getText());
+            JOptionPane.showMessageDialog(this, "Book added successfully.", "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
             clearFields();
             loadBooks();
-        } catch (Exception ex) {
-            UiHelper.showError(this, ex);
+        } catch (ValidationException | DaoException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateBook() {
         try {
-            service.updateBook(idField.getText(), titleField.getText(), authorField.getText(), categoryField.getText(), statusField.getText());
-            UiHelper.showInfo(this, "Book updated successfully.");
+            service.updateBook(idField.getText(), titleField.getText(), authorField.getText(),
+                    categoryField.getText(), statusField.getText());
+            JOptionPane.showMessageDialog(this, "Book updated successfully.", "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
             loadBooks();
-        } catch (Exception ex) {
-            UiHelper.showError(this, ex);
+        } catch (ValidationException | DaoException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void deleteBook() {
-        if (!UiHelper.confirm(this, "Delete this book?")) {
-            return;
-        }
         try {
-            boolean deleted = service.deleteBook(idField.getText());
-            UiHelper.showInfo(this, deleted ? "Book deleted successfully." : "Book was not found.");
-            clearFields();
-            loadBooks();
-        } catch (Exception ex) {
-            UiHelper.showError(this, ex);
+            int result = JOptionPane.showConfirmDialog(this, "Delete this book?", "Confirm",
+                    JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                int id = Integer.parseInt(idField.getText());
+                service.deleteBook(id);
+                JOptionPane.showMessageDialog(this, "Book deleted successfully.", "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                clearFields();
+                loadBooks();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid Book ID", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        } catch (DaoException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -121,16 +163,18 @@ public class BookPanel extends JPanel {
             List<Book> books;
             String searchTerm = searchField.getText().trim();
             if (!searchTerm.isEmpty()) {
-                books = service.searchBooks(searchTerm, "All");
+                books = service.searchBooks(searchTerm);
             } else {
-                books = service.listBooks();
+                books = service.getAllBooks();
             }
             model.setRowCount(0);
             for (Book book : books) {
-                model.addRow(new Object[] {book.getBookId(), book.getTitle(), book.getAuthor(), book.getCategory(), book.getAvailabilityStatus()});
+                model.addRow(new Object[]{book.getBookId(), book.getTitle(), book.getAuthor(),
+                    book.getCategory(), book.getAvailabilityStatus()});
             }
-        } catch (Exception ex) {
-            UiHelper.showError(this, ex);
+        } catch (DaoException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -152,6 +196,8 @@ public class BookPanel extends JPanel {
         authorField.setText("");
         categoryField.setText("");
         statusField.setText("");
+        searchField.setText("");
         table.clearSelection();
     }
 }
+

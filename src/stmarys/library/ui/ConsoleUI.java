@@ -125,7 +125,7 @@ public class ConsoleUI {
 
     private void listBooks() {
         try {
-            printBooks(service.listBooks());
+            printBooks(service.getAllBooks());
         } catch (Exception ex) {
             printError(ex);
         }
@@ -133,9 +133,8 @@ public class ConsoleUI {
 
     private void searchBooks() {
         try {
-            String text = ask("Search title/author/category: ");
-            String status = askWithAll("Status", "Available", "Borrowed");
-            printBooks(service.searchBooks(text, status));
+            String text = ask("Search title: ");
+            printBooks(service.searchBooks(text));
         } catch (Exception ex) {
             printError(ex);
         }
@@ -162,8 +161,9 @@ public class ConsoleUI {
     private void deleteBook() {
         try {
             if (confirm()) {
-                boolean deleted = service.deleteBook(ask("Book ID: "));
-                System.out.println(deleted ? "Book deleted successfully." : "Book was not found.");
+                int id = Integer.parseInt(ask("Book ID: "));
+                service.deleteBook(id);
+                System.out.println("Book deleted successfully.");
             }
         } catch (Exception ex) {
             printError(ex);
@@ -172,7 +172,7 @@ public class ConsoleUI {
 
     private void listMembers() {
         try {
-            printMembers(service.listMembers());
+            printMembers(service.getAllMembers());
         } catch (Exception ex) {
             printError(ex);
         }
@@ -180,9 +180,8 @@ public class ConsoleUI {
 
     private void searchMembers() {
         try {
-            String text = ask("Search name/email/id: ");
-            String type = askWithAll("Type", "Student", "Staff");
-            printMembers(service.searchMembers(text, type));
+            String text = ask("Search name: ");
+            printMembers(service.searchMembers(text));
         } catch (Exception ex) {
             printError(ex);
         }
@@ -209,8 +208,9 @@ public class ConsoleUI {
     private void deleteMember() {
         try {
             if (confirm()) {
-                boolean deleted = service.deleteMember(ask("Member ID: "));
-                System.out.println(deleted ? "Member deleted successfully." : "Member was not found.");
+                int id = Integer.parseInt(ask("Member ID: "));
+                service.deleteMember(id);
+                System.out.println("Member deleted successfully.");
             }
         } catch (Exception ex) {
             printError(ex);
@@ -219,7 +219,7 @@ public class ConsoleUI {
 
     private void listBorrowRecords() {
         try {
-            printBorrowRecords(service.listBorrowRecords());
+            printBorrowRecords(service.getAllBorrowRecords());
         } catch (Exception ex) {
             printError(ex);
         }
@@ -227,9 +227,8 @@ public class ConsoleUI {
 
     private void searchBorrowRecords() {
         try {
-            String text = ask("Search book/member: ");
-            String status = askWithAll("Status", "Borrowed", "Returned", "Overdue");
-            printBorrowRecords(service.searchBorrowRecords(text, status));
+            System.out.println("Showing all borrowing records...");
+            printBorrowRecords(service.getAllBorrowRecords());
         } catch (Exception ex) {
             printError(ex);
         }
@@ -237,7 +236,7 @@ public class ConsoleUI {
 
     private void addBorrowRecord() {
         try {
-            service.addBorrowRecord(ask("Record ID: "), ask("Book ID: "), ask("Member ID: "), ask("Borrow date yyyy-mm-dd: "), ask("Due date yyyy-mm-dd: "), askStatus("Status", "Borrowed", "Returned", "Overdue"));
+            service.addBorrowRecord(ask("Book ID: "), ask("Member ID: "), ask("Borrow date yyyy-mm-dd: "), ask("Due date yyyy-mm-dd: "));
             System.out.println("Borrowing record added successfully.");
         } catch (Exception ex) {
             printError(ex);
@@ -246,7 +245,7 @@ public class ConsoleUI {
 
     private void updateBorrowRecord() {
         try {
-            service.updateBorrowRecord(ask("Record ID: "), ask("Book ID: "), ask("Member ID: "), ask("Borrow date yyyy-mm-dd: "), ask("Due date yyyy-mm-dd: "), askStatus("Status", "Borrowed", "Returned", "Overdue"));
+            service.updateBorrowRecord(ask("Record ID: "), askStatus("Status", "Borrowed", "Returned", "Overdue"));
             System.out.println("Borrowing record updated successfully.");
         } catch (Exception ex) {
             printError(ex);
@@ -256,8 +255,9 @@ public class ConsoleUI {
     private void deleteBorrowRecord() {
         try {
             if (confirm()) {
-                boolean deleted = service.deleteBorrowRecord(ask("Record ID: "));
-                System.out.println(deleted ? "Borrowing record deleted successfully." : "Borrowing record was not found.");
+                int id = Integer.parseInt(ask("Record ID: "));
+                service.deleteBorrowRecord(id);
+                System.out.println("Borrowing record deleted successfully.");
             }
         } catch (Exception ex) {
             printError(ex);
