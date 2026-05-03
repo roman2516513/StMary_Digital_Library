@@ -47,6 +47,17 @@ public class BorrowPanel extends JPanel {
             table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
             loadRecords();
         });
+        service.addChangeListener(new stmarys.library.service.LibraryChangeListener() {
+            @Override
+            public void booksChanged() {
+                javax.swing.SwingUtilities.invokeLater(() -> loadRecords());
+            }
+
+            @Override
+            public void borrowsChanged() {
+                javax.swing.SwingUtilities.invokeLater(() -> loadRecords());
+            }
+        });
     }
 
     private JPanel makeForm() {

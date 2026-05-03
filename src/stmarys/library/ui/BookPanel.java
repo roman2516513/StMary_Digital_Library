@@ -46,6 +46,18 @@ public class BookPanel extends JPanel {
             table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
             loadBooks();
         });
+        // Refresh when library changes elsewhere
+        service.addChangeListener(new stmarys.library.service.LibraryChangeListener() {
+            @Override
+            public void booksChanged() {
+                javax.swing.SwingUtilities.invokeLater(() -> loadBooks());
+            }
+
+            @Override
+            public void borrowsChanged() {
+                javax.swing.SwingUtilities.invokeLater(() -> loadBooks());
+            }
+        });
     }
 
     private JPanel makeForm() {
@@ -135,6 +147,26 @@ public class BookPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Book updated successfully.", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             loadBooks();
+
+            // If the status was set to Borrowed from the book panel, offer to create a borrow record
+            if ("Borrowed".equalsIgnoreCase(statusField.getText().trim())) {
+                int opt = JOptionPane.showConfirmDialog(this, "Create a borrowing record for this book now?", "Create Borrow Record", JOptionPane.YES_NO_OPTION);
+                if (opt == JOptionPane.YES_OPTION) {
+                    try {
+                        String memberId = JOptionPane.showInputDialog(this, "Member ID:");
+                        if (memberId == null) return;
+                        String borrowDate = JOptionPane.showInputDialog(this, "Borrow date (yyyy-mm-dd):", java.time.LocalDate.now().toString());
+                        if (borrowDate == null) return;
+                        String dueDate = JOptionPane.showInputDialog(this, "Due date (yyyy-mm-dd):", java.time.LocalDate.now().plusWeeks(2).toString());
+                        if (dueDate == null) return;
+                        service.addBorrowRecord(idField.getText(), memberId, borrowDate, dueDate);
+                        JOptionPane.showMessageDialog(this, "Borrow record created.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        loadBooks();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
         } catch (ValidationException | DaoException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);

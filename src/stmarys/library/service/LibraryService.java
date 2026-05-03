@@ -2,6 +2,7 @@ package stmarys.library.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import stmarys.library.dao.BookDAOImpl;
 import stmarys.library.dao.BorrowRecordDAOImpl;
 import stmarys.library.dao.DaoException;
@@ -23,6 +24,28 @@ public class LibraryService {
         this.borrowRecordDAO = borrowRecordDAO;
     }
 
+    private final List<LibraryChangeListener> listeners = new CopyOnWriteArrayList<>();
+
+    public void addChangeListener(LibraryChangeListener l) {
+        if (l != null) listeners.add(l);
+    }
+
+    public void removeChangeListener(LibraryChangeListener l) {
+        listeners.remove(l);
+    }
+
+    private void notifyBooksChanged() {
+        for (LibraryChangeListener l : listeners) {
+            try { l.booksChanged(); } catch (Exception ignored) {}
+        }
+    }
+
+    private void notifyBorrowsChanged() {
+        for (LibraryChangeListener l : listeners) {
+            try { l.borrowsChanged(); } catch (Exception ignored) {}
+        }
+    }
+
     // Book operations
     public void addBook(String idStr, String title, String author, String category, String status)
             throws ValidationException, DaoException {
@@ -36,6 +59,7 @@ public class LibraryService {
 
         Book book = new Book(id, title, author, category, status);
         bookDAO.save(book);
+        notifyBooksChanged();
     }
 
     public List<Book> getAllBooks() throws DaoException {
@@ -59,14 +83,36 @@ public class LibraryService {
             book.setAuthor(author);
         if (!category.trim().isEmpty())
             book.setCategory(category);
-        if (!status.trim().isEmpty())
+        boolean statusChangedToAvailable = false;
+        if (!status.trim().isEmpty()) {
+            String old = book.getAvailabilityStatus();
             book.setAvailabilityStatus(status);
+            if (!"Available".equalsIgnoreCase(old) && "Available".equalsIgnoreCase(status)) {
+                statusChangedToAvailable = true;
+            }
+        }
 
         bookDAO.save(book);
+        notifyBooksChanged();
+
+        // If the book was marked Available, automatically mark any active borrow records for
+        // this book as Returned so the Borrow panel stays in sync.
+        if (statusChangedToAvailable) {
+            List<BorrowRecord> all = borrowRecordDAO.findAll();
+            for (BorrowRecord r : all) {
+                if (r.getBookId() == id && !"Returned".equalsIgnoreCase(r.getReturnStatus())) {
+                    r.setReturnStatus("Returned");
+                    borrowRecordDAO.save(r);
+                }
+            }
+            notifyBorrowsChanged();
+            notifyBooksChanged();
+        }
     }
 
     public void deleteBook(int id) throws DaoException {
         bookDAO.delete(id);
+        notifyBooksChanged();
     }
 
     public List<Book> searchBooks(String query) throws DaoException {
@@ -144,6 +190,8 @@ public class LibraryService {
 
         book.setAvailabilityStatus("Borrowed");
         bookDAO.save(book);
+        notifyBorrowsChanged();
+        notifyBooksChanged();
     }
 
     public List<BorrowRecord> getAllBorrowRecords() throws DaoException {
@@ -166,9 +214,13 @@ public class LibraryService {
                 bookDAO.save(book);
             }
         }
+        notifyBorrowsChanged();
+        notifyBooksChanged();
     }
 
     public void deleteBorrowRecord(int recordId) throws DaoException {
         borrowRecordDAO.delete(recordId);
+        notifyBorrowsChanged();
+        notifyBooksChanged();
     }
 }
