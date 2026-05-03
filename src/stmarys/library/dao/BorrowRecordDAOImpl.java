@@ -125,6 +125,23 @@ public class BorrowRecordDAOImpl {
             }
         }
 
+        // If value is numeric, treat as epoch seconds or milliseconds
+        if (trimmed.matches("\\d+")) {
+            try {
+                long val = Long.parseLong(trimmed);
+                java.time.Instant instant;
+                // milliseconds have 13 or more digits; seconds have 10
+                if (trimmed.length() >= 13) {
+                    instant = java.time.Instant.ofEpochMilli(val);
+                } else {
+                    instant = java.time.Instant.ofEpochSecond(val);
+                }
+                return java.time.LocalDateTime.ofInstant(instant, java.time.ZoneId.systemDefault()).toLocalDate();
+            } catch (NumberFormatException ex) {
+                throw new SQLException("Error parsing time stamp: " + raw, ex);
+            }
+        }
+
         // Fallback: try direct parse
         try {
             return LocalDate.parse(trimmed);

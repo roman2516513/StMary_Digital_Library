@@ -17,8 +17,10 @@ import stmarys.library.model.BorrowRecord;
 import stmarys.library.service.LibraryService;
 import stmarys.library.util.ValidationException;
 
+@SuppressWarnings("this-escape")
 public class BorrowPanel extends JPanel {
-    private final LibraryService service;
+    private static final long serialVersionUID = 1L;
+    private final transient LibraryService service;
     private final JTextField recordIdField = new JTextField(8);
     private final JTextField bookIdField = new JTextField(8);
     private final JTextField memberIdField = new JTextField(8);
@@ -41,8 +43,10 @@ public class BorrowPanel extends JPanel {
         add(makeForm(), BorderLayout.WEST);
         add(makeTableArea(), BorderLayout.CENTER);
         table.setAutoCreateRowSorter(true);
-        table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
-        loadRecords();
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
+            loadRecords();
+        });
     }
 
     private JPanel makeForm() {

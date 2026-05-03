@@ -17,8 +17,10 @@ import stmarys.library.model.Book;
 import stmarys.library.service.LibraryService;
 import stmarys.library.util.ValidationException;
 
+@SuppressWarnings("this-escape")
 public class BookPanel extends JPanel {
-    private final LibraryService service;
+    private static final long serialVersionUID = 1L;
+    private final transient LibraryService service;
     private final JTextField idField = new JTextField(8);
     private final JTextField titleField = new JTextField(20);
     private final JTextField authorField = new JTextField(20);
@@ -40,8 +42,10 @@ public class BookPanel extends JPanel {
         add(makeForm(), BorderLayout.WEST);
         add(makeTableArea(), BorderLayout.CENTER);
         table.setAutoCreateRowSorter(true);
-        table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
-        loadBooks();
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
+            loadBooks();
+        });
     }
 
     private JPanel makeForm() {

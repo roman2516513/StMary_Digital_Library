@@ -17,23 +17,27 @@ public class ConsoleUI {
 
     public void start() {
         boolean running = true;
-        while (running) {
-            System.out.println();
-            System.out.println("St Mary's Digital Library System");
-            System.out.println("1. Manage Books");
-            System.out.println("2. Manage Members");
-            System.out.println("3. Manage Borrowing Records");
-            System.out.println("4. Search Records");
-            System.out.println("0. Exit");
-            String choice = ask("Choose option: ");
-            switch (choice) {
-                case "1" -> bookMenu();
-                case "2" -> memberMenu();
-                case "3" -> borrowMenu();
-                case "4" -> searchMenu();
-                case "0" -> running = false;
-                default -> System.out.println("Invalid option.");
+        try {
+            while (running) {
+                System.out.println();
+                System.out.println("St Mary's Digital Library System");
+                System.out.println("1. Manage Books");
+                System.out.println("2. Manage Members");
+                System.out.println("3. Manage Borrowing Records");
+                System.out.println("4. Search Records");
+                System.out.println("0. Exit");
+                String choice = ask("Choose option: ");
+                switch (choice) {
+                    case "1" -> bookMenu();
+                    case "2" -> memberMenu();
+                    case "3" -> borrowMenu();
+                    case "4" -> searchMenu();
+                    case "0" -> running = false;
+                    default -> System.out.println("Invalid option.");
+                }
             }
+        } finally {
+            scanner.close();
         }
     }
 

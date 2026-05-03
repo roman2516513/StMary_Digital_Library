@@ -17,8 +17,10 @@ import stmarys.library.model.Member;
 import stmarys.library.service.LibraryService;
 import stmarys.library.util.ValidationException;
 
+@SuppressWarnings("this-escape")
 public class MemberPanel extends JPanel {
-    private final LibraryService service;
+    private static final long serialVersionUID = 1L;
+    private final transient LibraryService service;
     private final JTextField idField = new JTextField(8);
     private final JTextField nameField = new JTextField(20);
     private final JTextField emailField = new JTextField(20);
@@ -39,8 +41,10 @@ public class MemberPanel extends JPanel {
         add(makeForm(), BorderLayout.WEST);
         add(makeTableArea(), BorderLayout.CENTER);
         table.setAutoCreateRowSorter(true);
-        table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
-        loadMembers();
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
+            loadMembers();
+        });
     }
 
     private JPanel makeForm() {
