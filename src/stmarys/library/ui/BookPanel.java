@@ -47,7 +47,6 @@ public class BookPanel extends JPanel {
             table.getSelectionModel().addListSelectionListener(event -> fillFromTable());
             loadBooks();
         });
-        // Refresh when library changes elsewhere
         service.addChangeListener(new stmarys.library.service.LibraryChangeListener() {
             @Override
             public void booksChanged() {

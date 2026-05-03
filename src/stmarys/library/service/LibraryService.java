@@ -46,7 +46,6 @@ public class LibraryService {
         }
     }
 
-    // Book operations
     public void addBook(String idStr, String title, String author, String category, String status)
             throws ValidationException, DaoException {
         int id = ValidationUtil.positiveInt(idStr, "Book ID");
@@ -95,8 +94,6 @@ public class LibraryService {
         bookDAO.save(book);
         notifyBooksChanged();
 
-        // If the book was marked Available, automatically mark any active borrow records for
-        // this book as Returned so the Borrow panel stays in sync.
         if (statusChangedToAvailable) {
             List<BorrowRecord> all = borrowRecordDAO.findAll();
             for (BorrowRecord r : all) {
@@ -119,7 +116,6 @@ public class LibraryService {
         return bookDAO.searchByTitle(query);
     }
 
-    // Member operations
     public void addMember(String idStr, String name, String email, String type) throws ValidationException, DaoException {
         int id = ValidationUtil.positiveInt(idStr, "Member ID");
         if (name.trim().isEmpty())
@@ -165,7 +161,6 @@ public class LibraryService {
         return memberDAO.searchByName(query);
     }
 
-    // Borrow record operations
     public void addBorrowRecord(String bookIdStr, String memberIdStr, String borrowDateStr, String dueDateStr)
             throws ValidationException, DaoException {
         int bookId = ValidationUtil.positiveInt(bookIdStr, "Book ID");
@@ -179,7 +174,6 @@ public class LibraryService {
         if (member == null)
             throw new ValidationException("Member not found");
 
-        // Prevent duplicate active borrow for the same book or same book+member
         if (borrowRecordDAO.hasActiveBorrowForBook(bookId)) {
             throw new ValidationException("This book is already borrowed and not yet returned.");
         }
