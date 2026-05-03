@@ -1,4 +1,4 @@
 @echo off
 echo Running GUI app...
-rem Replace with actual run command
-exit /b 0
+java -cp out;lib\sqlite-jdbc.jar stmarys.library.Main
+exit /b %ERRORLEVEL%
