@@ -22,8 +22,8 @@ Technology Used:
 
 How to run the app
 - Using the provided batch files (Windows):
-	- Build: `build.bat`
-	- Run GUI: `run-gui.bat`
+	- Build: `build.bat` or `.\build.bat`
+	- Run GUI: `run-gui.bat` or `.\run-gui.bat`
 	- Run console: `run-console.bat`
 - Running directly without the batch files (example commands):
 	- Build from the project root:
